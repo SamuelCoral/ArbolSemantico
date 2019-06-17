@@ -1,0 +1,37 @@
+library:
+  source-dirs: src
+tests:
+  ArbolSemantico-test:
+    source-dirs: test
+    main: Spec.hs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ArbolSemantico
+copyright: 2019 Author name here
+maintainer: example@example.com
+dependencies:
+- parallel
+- containers
+- base >= 4.7 && < 5
+name: ArbolSemantico
+version: 0.1.0.0
+extra-source-files:
+- README.md
+- ChangeLog.md
+author: Author name here
+github: githubuser/ArbolSemantico
+license: BSD3
+executables:
+  ArbolSemantico-exe:
+    source-dirs: app
+    main: Main.hs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - ArbolSemantico
+description: Please see the README on GitHub at <https://github.com/githubuser/ArbolSemantico#readme>
