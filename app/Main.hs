@@ -3,6 +3,7 @@ module Main where
 
 import Expresion
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Data.Maybe
 import Text.Read
 import System.Environment
@@ -11,7 +12,7 @@ import System.Environment
 formatearSatisfacibilidad :: (Ord a, Show a) => Expresion a -> String
 formatearSatisfacibilidad e =
     let (s, a) = obtenerSatisfacibilidad e
-    in unlines $ show e : show s : (show . Map.assocs <$> a)
+    in unlines $ show e : show s : (show . Map.assocs <$> Set.toList a)
 
 
 main :: IO ()

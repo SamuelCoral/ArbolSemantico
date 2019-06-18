@@ -1,6 +1,8 @@
+{-# LANGUAGE DeriveFunctor #-}
 module Expresion where
 
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Data.Foldable
 import Data.Maybe
 
@@ -24,10 +26,10 @@ data Expresion a =
     | Expresion a :| Expresion a
     | Expresion a :& Expresion a
     | Expresion a :> Expresion a
-    deriving (Eq, Read, Ord)
+    deriving (Eq, Read, Ord, Functor)
 
 
-type Rama a = Map.Map (Expresion a) Bool
+type ArbolSemantico a = Set.Set (Map.Map (Expresion a) Bool)
 
 data Satisfacibilidad = Tautologia | Satisfacible | Insatisfacible 
     deriving Show
@@ -61,15 +63,16 @@ obtenerSigno e = case e of
     p -> (p, True)
 
 
-crearArbolSemantico :: Ord a => Expresion a -> [Rama a]
+crearArbolSemantico :: Ord a => Expresion a -> ArbolSemantico a
 crearArbolSemantico e = case equivalente e of
-    p :| q -> crearArbolSemantico p ++ crearArbolSemantico q
-    p :& q -> catMaybes [ unirSeguroMapa r1 r2 |
-                r1 <- crearArbolSemantico p, r2 <- crearArbolSemantico q ]
-    p -> [ uncurry Map.singleton $ obtenerSigno p ]
+    p :| q -> Set.union (crearArbolSemantico p) (crearArbolSemantico q)
+    p :& q -> Set.fromList $ catMaybes [ unirSeguroMapa r1 r2 |
+                r1 <- Set.toList $ crearArbolSemantico p,
+                r2 <- Set.toList $ crearArbolSemantico q ]
+    p -> Set.singleton $ uncurry Map.singleton $ obtenerSigno p
 
 
-obtenerSatisfacibilidad :: Ord a => Expresion a -> (Satisfacibilidad, [Rama a])
+obtenerSatisfacibilidad :: Ord a => Expresion a -> (Satisfacibilidad, ArbolSemantico a)
 obtenerSatisfacibilidad e =
     let ap = crearArbolSemantico e
         an = crearArbolSemantico $ No e
@@ -77,4 +80,16 @@ obtenerSatisfacibilidad e =
           | null ap = Insatisfacible
           | otherwise = Satisfacible
     in (s, ap)
+
+
+formatearPrefija :: Expresion String -> String
+formatearPrefija e =
+    let (d, s) = obtenerSigno e
+        l | s = '+'
+          | otherwise = '-'
+    in l : case d of
+        p :& q -> "&(" ++ formatearPrefija p ++ "," ++ formatearPrefija q ++ ")"
+        p :| q -> "|(" ++ formatearPrefija p ++ "," ++ formatearPrefija q ++ ")"
+        p :> q -> "/(" ++ formatearPrefija p ++ "," ++ formatearPrefija q ++ ")"
+        At p -> p ++ "."
 
