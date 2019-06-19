@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE LambdaCase #-}
 module Expresion where
 
 import qualified Data.Map as Map
@@ -36,7 +37,7 @@ data Satisfacibilidad = Tautologia | Satisfacible | Insatisfacible
 
 
 instance Show a => Show (Expresion a) where
-    show e = case e of
+    show = \ case
         At p -> show p
         No p -> '~' : show p
         p :& q -> mostrarPar p q " ^ "
@@ -46,19 +47,19 @@ instance Show a => Show (Expresion a) where
 
 
 equivalente :: Expresion a -> Expresion a
-equivalente e = case e of
+equivalente = \ case
     No f -> case f of
         No p -> equivalente p
         p :& q -> No p :| No q
         p :| q -> No p :& No q
         p :> q -> p :& No q
-        p -> e
+        p -> No p
     p :> q -> No p :| q
     p -> p
 
 
 obtenerSigno :: Expresion a -> (Expresion a, Bool)
-obtenerSigno e = case e of
+obtenerSigno = \ case
     No p -> not <$> obtenerSigno p
     p -> (p, True)
 
