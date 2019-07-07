@@ -30,6 +30,25 @@ data Expresion a =
     deriving (Eq, Read, Ord, Functor)
 
 
+instance Applicative Expresion where
+    pure = At
+    f <*> t = case f of
+        No p -> No $ p <*> t
+        p :| q -> (p <*> t) :| (q <*> t)
+        p :& q -> (p <*> t) :& (q <*> t)
+        p :> q -> (p <*> t) :> (q <*> t)
+        At p -> p <$> t
+
+
+instance Monad Expresion where
+    t >>= f = case t of
+        No p -> No $ p >>= f
+        p :| q -> (p >>= f) :| (q >>= f)
+        p :& q -> (p >>= f) :& (q >>= f)
+        p :> q -> (p >>= f) :> (q >>= f)
+        At p -> f p
+
+
 type ArbolSemantico a = Set.Set (Map.Map (Expresion a) Bool)
 
 data Satisfacibilidad = Tautologia | Satisfacible | Insatisfacible 

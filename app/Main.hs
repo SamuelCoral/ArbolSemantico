@@ -15,6 +15,14 @@ formatearSatisfacibilidad e =
     in unlines $ show e : show s : (show . Map.assocs <$> Set.toList a)
 
 
+mostrarSatisfacibilidad :: (Ord a, Show a) => Expresion a -> IO ()
+mostrarSatisfacibilidad = putStrLn . formatearSatisfacibilidad
+
+
+guardarSatisfacibilidad :: (Ord a, Show a) => FilePath -> Expresion a -> IO ()
+guardarSatisfacibilidad o = writeFile o . formatearSatisfacibilidad
+
+
 main :: IO ()
 main = getArgs >>= \ case
     entrada : salida : _ -> do
