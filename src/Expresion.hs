@@ -102,6 +102,15 @@ obtenerSatisfacibilidad e =
     in (s, ap)
 
 
+evaluarExpresion :: Expresion Bool -> Bool
+evaluarExpresion = \ case
+    No p -> not $ evaluarExpresion p
+    p :| q -> evaluarExpresion p || evaluarExpresion q
+    p :& q -> evaluarExpresion p && evaluarExpresion q
+    p :> q -> not (evaluarExpresion p) || evaluarExpresion q
+    At p -> p
+
+
 formatearPrefija :: Expresion String -> String
 formatearPrefija e =
     let (d, s) = obtenerSigno e
